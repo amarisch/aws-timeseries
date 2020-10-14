@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Parameters: 
+  TablePrefix:
+    Type: String
+  BucketName:
+    Type: String
+Resources:
+  ImportData:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: import_data.handler
+      Policies:
+        - AWSLambdaExecute # Managed Policy
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:BatchWriteItem
+              Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TablePrefix}*'      
+      Runtime: python3.7
+      Timeout: 900
+      MemorySize: 3008
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TablePrefix
+          BUCKET_NAME: !Ref BucketName
+      Events:
+        ImportDataEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 hour)

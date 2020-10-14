@@ -1,0 +1,6 @@
+import os
+from dataimporter import ImportData
+
+def import_data(event, context):
+    importer = ImportData(table_prefix=os.environ['TABLE_NAME'], bucketName=os.environ['BUCKET_NAME'])
+    importer.import_data()
